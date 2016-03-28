@@ -42,3 +42,10 @@ Example json output for 2 single file PDFs compared:
 ```
 
 Further experiments may follow - e.g. considering the use of Apache.PdfBox for text comparison.
+
+
+#License
+
+This code is licensed openly - please consider it as MsPL
+
+The libraries used - including Magick.Net, ImageMagick and GhostScript all have their own licensing - please be especially aware of GhostScript's AGPL license.
