@@ -12,7 +12,7 @@ This experiment leans heavily on the fabulous Magick.Net Nuget package (which it
 
 To use:
 
-    PdfComparison.exe [path_for_output] [path_to_pdf_a] [path_to_pdf_b]
+    PdfComparison.exe [prefix_for_output_folder] [path_for_output] [path_to_pdf_a] [path_to_pdf_b]
 
 Example json output for 2 single file PDFs compared:
 
