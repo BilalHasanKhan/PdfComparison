@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,6 +6,9 @@ namespace PdfComparison
 {
     public class DocumentComparison
     {
+        public DateTime WhenUtc { get; set; }
+        public string TestNamePrefix { get; set; }
+        public string FolderName { get; set; }
         public string TestDocumentPath { get; set; }
         public string ReferenceDocumentPath { get; set; }
         public List<PageComparison> PageComparisons { get; set; }

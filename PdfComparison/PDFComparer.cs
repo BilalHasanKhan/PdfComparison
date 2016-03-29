@@ -15,8 +15,10 @@ namespace PdfComparison
         private static readonly MagickGeometry ThumbnailGeometry = new MagickGeometry(ThumbnailWidthAndHeight) { FillArea = false, IgnoreAspectRatio = false };
 
         public static string DoComparison(string testNamePrefix, string outputBasePath, string referencePdf, string testFilePdf)
-        { 
-            var outputPath = Path.Combine(outputBasePath, $"{testNamePrefix}_{DateTime.Now:yy_MM_dd_HH_mm_ss}");
+        {
+            var when = DateTime.UtcNow;
+
+            var outputPath = Path.Combine(outputBasePath, $"{testNamePrefix}_{when:yy_MM_dd_HH_mm_ss}");
             var referencePath = Path.Combine(outputPath, PageComparison.ReferenceRelativePath);
             var testPath = Path.Combine(outputPath, PageComparison.TestRelativePath);
             var resultPath = Path.Combine(outputPath, PageComparison.ResultRelativePath);
@@ -33,6 +35,9 @@ namespace PdfComparison
 
             var docComparison = new DocumentComparison()
             {
+                WhenUtc = when,
+                FolderName = outputPath,
+                TestNamePrefix = testNamePrefix,
                 TestDocumentPath = testFilePdf,
                 ReferenceDocumentPath = referencePdf,
                 PageComparisons = compareResults.ToList()
@@ -79,9 +84,11 @@ namespace PdfComparison
             build.AppendLine($"* Reference: [{docComparison.ReferenceDocumentPath}]({docComparison.ReferenceDocumentPath})");
             build.AppendLine($"* Test File: [{docComparison.TestDocumentPath}]({docComparison.TestDocumentPath})");
             build.AppendLine();
-            build.AppendLine($"There {(docComparison.CountPages > 1 ? "were" : "was")} {docComparison.CountPages} page{(docComparison.CountPages > 1 ? "s" : "")}. {docComparison.CountPagesWithDifferences} page{(docComparison.CountPagesWithDifferences > 1 ? "s" : "")} had differences.");
+            build.AppendLine($"There {(docComparison.CountPages > 1 ? "were" : "was")} {docComparison.CountPages} page{(docComparison.CountPages > 1 ? "s" : "")}.");
             build.AppendLine();
-            build.AppendLine("##Pages");
+            build.AppendLine($"{docComparison.CountPagesWithDifferences} page{(docComparison.CountPagesWithDifferences > 1 ? "s" : "")} had differences.");
+            build.AppendLine();
+            build.AppendLine("##Page Details");
             build.AppendLine();
             build.AppendLine("| Reference | Difference | Test File | ");
             build.AppendLine("|---|---|---|");
