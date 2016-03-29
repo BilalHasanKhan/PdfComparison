@@ -43,6 +43,11 @@ namespace PdfComparison
                 PageComparisons = compareResults.ToList()
             };
 
+            return WriteOutputs(outputPath, docComparison);
+        }
+
+        private static string WriteOutputs(string outputPath, DocumentComparison docComparison)
+        {
             var resultFilePath = Path.Combine(outputPath, "results.json");
             var json = JsonConvert.SerializeObject(docComparison, Formatting.Indented);
             File.WriteAllText(resultFilePath, json);
@@ -77,7 +82,7 @@ namespace PdfComparison
         private static void WriteMarkdown(string output, DocumentComparison docComparison)
         {
             var build = new StringBuilder();
-            build.AppendLine("#Comparison");
+            build.AppendLine($"#{docComparison.TestNamePrefix} ({docComparison.WhenUtc:u})");
             build.AppendLine();
             build.AppendLine("Comparison of:");
             build.AppendLine();
