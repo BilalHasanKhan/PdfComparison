@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using ImageMagick;
 using Newtonsoft.Json;
+using TwoPS.Processes;
 
 namespace PdfComparison
 {
@@ -40,7 +42,56 @@ namespace PdfComparison
             var json = JsonConvert.SerializeObject(docComparison, Formatting.Indented);
             File.WriteAllText(resultFilePath, json);
 
+            var md = Path.ChangeExtension(resultFilePath, "md");
+            var html = Path.ChangeExtension(resultFilePath, "html");
+
+            WriteMarkdown(md, docComparison);
+            CreateHtmlFromMarkdown(md, html);
             return resultFilePath;
+        }
+
+        private static void CreateHtmlFromMarkdown(string md, string html)
+        {
+            try
+            {
+                var process = new Process("pandoc.exe", "--from", "markdown", "--to", "html", "--standalone", md);
+                var result = process.Run();
+                File.WriteAllText(html, result.AllOutput);
+            }
+            catch (Exception pokemon)
+            {
+                // ignored
+            }
+        }
+
+        private static string ImageLink(string which, PageComparison page)
+        {
+            return $"[![{which}]({which}/Thumb{page.PageNumber:0000}.png \"{which}\")]({which}/Page{page.PageNumber:0000}.png)";
+        }
+
+        private static void WriteMarkdown(string output, DocumentComparison docComparison)
+        {
+            var build = new StringBuilder();
+            build.AppendLine("#Comparison");
+            build.AppendLine();
+            build.AppendLine("Comparison of:");
+            build.AppendLine();
+            build.AppendLine($"* Reference: [{docComparison.ReferenceDocumentPath}]({docComparison.ReferenceDocumentPath})");
+            build.AppendLine($"* Test File: [{docComparison.TestDocumentPath}]({docComparison.TestDocumentPath})");
+            build.AppendLine();
+            build.AppendLine($"There {(docComparison.CountPages > 1 ? "were" : "was")} {docComparison.CountPages} page{(docComparison.CountPages > 1 ? "s" : "")}. {docComparison.CountPagesWithDifferences} page{(docComparison.CountPagesWithDifferences > 1 ? "s" : "")} had differences.");
+            build.AppendLine();
+            build.AppendLine("##Pages");
+            build.AppendLine();
+            build.AppendLine("| Reference | Difference | Test File | ");
+            build.AppendLine("|---|---|---|");
+            
+            foreach (var page in docComparison.PageComparisons)
+            {
+                build.AppendLine($"| {(ImageLink("reference", page))} | {(ImageLink("result", page))} | {(ImageLink("test", page))} |");
+            }
+
+            File.WriteAllText(output, build.ToString());
         }
 
         private static IEnumerable<PageComparison> Compare(int numPages, string rootPath, string referencePath, string toTestPath, string comparePath)
